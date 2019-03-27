@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(alai)
+project(neuralnet)
 
 ############################################################
 # Create a library
 ############################################################
 
 #Generate the shared library from the library sources
-add_library(alai SHARED 
+add_library(neuralnet SHARED
     src/MLPNetwork.cpp
 )
 
-target_include_directories(alai
+target_include_directories(neuralnet
     PUBLIC 
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_SOURCE_DIR}/external
@@ -27,8 +27,7 @@ add_executable(xor
 )
 
 target_link_libraries(xor
-    PRIVATE 
-        alai
+    neuralnet
 )
 
 # Classification example
@@ -37,6 +36,5 @@ add_executable(classification
 )
 
 target_link_libraries(classification
-    PRIVATE 
-        alai
+    neuralnet
 )
