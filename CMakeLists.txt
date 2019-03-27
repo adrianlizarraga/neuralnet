@@ -22,11 +22,11 @@ target_include_directories(alai
 ############################################################
 
 # XOR example
-add_executable(xor-example
-    examples/xor-example.cpp
+add_executable(xor
+    examples/xor.cpp
 )
 
-target_link_libraries(xor-example
+target_link_libraries(xor
     PRIVATE 
         alai
 )
