@@ -18,16 +18,25 @@ target_include_directories(alai
 )
 
 ############################################################
-# Create an executable
+# Create excutables for examples
 ############################################################
 
-# Add an executable with the above sources
+# XOR example
 add_executable(xor-example
     examples/xor-example.cpp
 )
 
-# link the new hello_library target with the hello_binary target
 target_link_libraries(xor-example
+    PRIVATE 
+        alai
+)
+
+# Classification example
+add_executable(classification
+    examples/classification.cpp
+)
+
+target_link_libraries(classification
     PRIVATE 
         alai
 )
