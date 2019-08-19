@@ -68,6 +68,11 @@ void Layer::initWeights(int weightsPerNode) {
     }
 }
 
+void Layer::randomizeWeights() {
+    this->weights = Eigen::MatrixXd::Random(this->weights.rows(), this->weights.cols());
+    this->biases = Eigen::VectorXd::Random(this->nodes);
+}
+
 void Layer::compute(const Eigen::VectorXd &input) {
     this->inputs = input;
 
@@ -172,5 +177,11 @@ void MLPNetwork::print() const {
         cout << this->layers[i].biases << endl << endl;
     }
     cout << endl;
+}
+
+void MLPNetwork::randomizeWeights() {
+    for (auto &layer : layers) {
+        layer.randomizeWeights();
+    }
 }
 } // namespace alai

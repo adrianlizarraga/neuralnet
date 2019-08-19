@@ -66,6 +66,7 @@ class Layer {
 
   private:
     void initWeights(int weightsPerNode);
+    void randomizeWeights();
     void compute(const Eigen::VectorXd &input);
     void backpropagate(const Eigen::VectorXd &prevError, const Eigen::MatrixXd &prevWeights);
     void update(double learningRate);
@@ -97,6 +98,7 @@ class MLPNetwork {
     double biasAt(int layer, int node) const;
 
     void print() const;
+    void randomizeWeights();
 
   private:
     int inputs;
