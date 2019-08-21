@@ -3,6 +3,7 @@
 #include "eigen3/Eigen/Dense"
 #include <memory>
 #include <vector>
+#include <random>
 
 namespace alai {
 
@@ -70,6 +71,7 @@ class Layer {
     void compute(const Eigen::VectorXd &input);
     void backpropagate(const Eigen::VectorXd &prevError, const Eigen::MatrixXd &prevWeights);
     void update(double learningRate);
+    void mutate(double probability);
 
     int nodes;
     PActivationFunction activationFunction;
@@ -79,6 +81,7 @@ class Layer {
     Eigen::VectorXd inputs;
     Eigen::VectorXd outputs;
     Eigen::MatrixXd deltas;
+    std::default_random_engine engine;
 };
 
 /////////////////////////////////////////////////////
@@ -99,6 +102,7 @@ class MLPNetwork {
 
     void print() const;
     void randomizeWeights();
+    void mutate(double probability);
 
   private:
     int inputs;

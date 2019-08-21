@@ -1,4 +1,5 @@
 #include "MLPNetwork.h"
+#include <chrono>
 #include <cmath>
 #include <iostream>
 
@@ -49,7 +50,8 @@ Layer::Layer(int nodes) : Layer(nodes, std::make_shared<Sigmoid>()) {}
 Layer::Layer(int nodes, PActivationFunction activationFunction) : Layer(nodes, activationFunction, RANDOM) {}
 
 Layer::Layer(int nodes, PActivationFunction activationFunction, WeightInitializer weightInitializer)
-    : nodes(nodes), weightInitializer(weightInitializer), activationFunction(activationFunction) {}
+    : nodes(nodes), weightInitializer(weightInitializer), activationFunction(activationFunction),
+      engine(std::chrono::system_clock::now().time_since_epoch().count()) {}
 
 void Layer::initWeights(int weightsPerNode) {
     switch (this->weightInitializer) {
@@ -95,6 +97,27 @@ void Layer::backpropagate(const Eigen::VectorXd &prevError, const Eigen::MatrixX
 void Layer::update(double learningRate) {
     this->weights += this->deltas * this->inputs.transpose() * learningRate;
     this->biases += this->deltas * learningRate;
+}
+
+void Layer::mutate(double probability) {
+    std::bernoulli_distribution bernoulliDistribution(probability);
+    std::uniform_real_distribution<double> realDistribution(-1.0, 1.0);
+
+    // Randmoize each weight with the given probability.
+    for (int r = 0; r < this->weights.rows(); ++r) {
+        for (int c = 0; c < this->weights.cols(); ++c) {
+            if (bernoulliDistribution(this->engine)) {
+                this->weights(r, c) = realDistribution(this->engine);
+            }
+        }
+    }
+
+    // Randomize each bias with the given probability.
+    for (int i = 0; i < this->biases.size(); ++i) {
+        if (bernoulliDistribution(this->engine)) {
+            this->biases(i) = realDistribution(this->engine);
+        }
+    }
 }
 
 /////////////////////////////////////////////////////
@@ -182,6 +205,12 @@ void MLPNetwork::print() const {
 void MLPNetwork::randomizeWeights() {
     for (auto &layer : layers) {
         layer.randomizeWeights();
+    }
+}
+
+void MLPNetwork::mutate(double probability) {
+    for (auto &layer : layers) {
+        layer.mutate(probability);
     }
 }
 } // namespace alai
