@@ -1,4 +1,5 @@
 #include "MLPNetwork.h"
+#include "nlohmann/json.hpp"
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -52,6 +53,26 @@ Layer::Layer(int nodes, PActivationFunction activationFunction) : Layer(nodes, a
 Layer::Layer(int nodes, PActivationFunction activationFunction, WeightInitializer weightInitializer)
     : nodes(nodes), weightInitializer(weightInitializer), activationFunction(activationFunction),
       engine(std::chrono::system_clock::now().time_since_epoch().count()) {}
+
+Layer::Layer(const std::vector<std::vector<double> >& weights, const std::vector<double>& biases) : Layer(std::make_shared<Sigmoid>(), weights, biases) {}
+Layer::Layer(PActivationFunction activationFunction, const std::vector<std::vector<double> >& weights, const std::vector<double>& biases)
+    : activationFunction(activationFunction), weightInitializer(NONE),
+      engine(std::chrono::system_clock::now().time_since_epoch().count()) {
+            int weightsPerNode = weights[0].size();
+            this->nodes = biases.size();
+            this->biases = Eigen::VectorXd::Zero(this->nodes);
+            this->weights = Eigen::MatrixXd::Zero(this->nodes, weightsPerNode);
+
+            for (int i = 0; i < biases.size(); ++i) {
+                this->biases(i) = biases[i];
+            }
+
+            for (int r = 0; r < this->weights.rows(); ++r) {
+                for (int c = 0; c < this->weights.cols(); ++c) {
+                    this->weights(r, c) = weights[r][c];
+                }
+            }
+    }
 
 void Layer::initWeights(int weightsPerNode) {
     switch (this->weightInitializer) {
@@ -212,5 +233,61 @@ void MLPNetwork::mutate(double probability) {
     for (auto &layer : layers) {
         layer.mutate(probability);
     }
+}
+
+std::string MLPNetwork::toJSON() const {
+    using namespace nlohmann;
+    json j;
+
+    j["inputs"] = this->inputs;
+    j["nodes_per_layer"] = json::array();
+    j["layers"] = json::array();
+
+    for (auto &layer : layers) {
+        json layerJSON = {
+            {"weights", json::array()},
+            {"biases", json::array()}
+        };
+
+        for (int r = 0; r < layer.weights.rows(); ++r) {
+            json rowsJSON = json::array();
+            
+            for (int c = 0; c < layer.weights.cols(); ++c) {
+                rowsJSON.push_back(layer.weights(r,c));
+            }
+
+            layerJSON["weights"].push_back(rowsJSON);
+        }
+
+        for (int i = 0; i < layer.biases.size(); ++i) {
+            layerJSON["biases"].push_back(layer.biases(i));
+        }
+
+        j["layers"].push_back(layerJSON);
+        j["nodes_per_layer"].push_back(layer.nodes);
+    }
+
+    return j.dump();
+}
+
+MLPNetwork MLPNetwork::fromJSON(std::string jsonstring) {
+    using namespace nlohmann;
+    json j = json::parse(jsonstring);
+    std::vector<Layer> layers;
+
+    for (auto &layerJSON : j["layers"]) {
+        layers.push_back(Layer(layerJSON["weights"].get<std::vector<std::vector<double> > >(), 
+            layerJSON["biases"].get<std::vector<double> >()));
+    }
+
+    return MLPNetwork(j["inputs"], layers);
+}
+
+void MLPNetwork::saveToFile(std::string filename) const {
+
+}
+
+MLPNetwork MLPNetwork::fromFile(std::string filename) {
+
 }
 } // namespace alai

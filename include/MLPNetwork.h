@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <random>
+#include <string>
 
 namespace alai {
 
@@ -57,11 +58,14 @@ typedef std::shared_ptr<ActivationFunction> PActivationFunction;
 /////////////////////////////////////////////////////
 class Layer {
   public:
-    enum WeightInitializer { RANDOM, ONES, ZEROS };
+    enum WeightInitializer { NONE, RANDOM, ONES, ZEROS };
 
     Layer(int nodes);
     Layer(int nodes, PActivationFunction activationFunction);
     Layer(int nodes, PActivationFunction activationFunction, WeightInitializer weightInitializer);
+
+    Layer(const std::vector<std::vector<double> >& weights, const std::vector<double>& biases);
+    Layer(PActivationFunction activationFunction, const std::vector<std::vector<double> >& weights, const std::vector<double>& biases);
 
     friend class MLPNetwork;
 
@@ -103,6 +107,12 @@ class MLPNetwork {
     void print() const;
     void randomizeWeights();
     void mutate(double probability);
+
+    std::string toJSON() const;
+    static MLPNetwork fromJSON(std::string json);
+
+    void saveToFile(std::string filename) const;
+    static MLPNetwork fromFile(std::string filename);
 
   private:
     int inputs;
