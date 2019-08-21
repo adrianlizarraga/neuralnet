@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 
 namespace alai {
 
@@ -284,10 +285,17 @@ MLPNetwork MLPNetwork::fromJSON(std::string jsonstring) {
 }
 
 void MLPNetwork::saveToFile(std::string filename) const {
+    std::ofstream outputFile(filename);
 
+    outputFile << this->toJSON() << std::endl;
 }
 
 MLPNetwork MLPNetwork::fromFile(std::string filename) {
+    std::ifstream inputFile(filename);
+    nlohmann::json j;
 
+    inputFile >> j;
+
+    return MLPNetwork::fromJSON(j.dump());
 }
 } // namespace alai
