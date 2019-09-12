@@ -123,13 +123,13 @@ void Layer::update(double learningRate) {
 
 void Layer::mutate(double probability) {
     std::bernoulli_distribution bernoulliDistribution(probability);
-    std::uniform_real_distribution<double> realDistribution(-1.0, 1.0);
+    std::normal_distribution<double> normalDistribution(0.0, 0.1);
 
     // Randmoize each weight with the given probability.
     for (int r = 0; r < this->weights.rows(); ++r) {
         for (int c = 0; c < this->weights.cols(); ++c) {
             if (bernoulliDistribution(this->engine)) {
-                this->weights(r, c) = this->weights(r, c) * realDistribution(this->engine);
+                this->weights(r, c) = this->weights(r, c) + normalDistribution(this->engine);
             }
         }
     }
@@ -137,7 +137,7 @@ void Layer::mutate(double probability) {
     // Randomize each bias with the given probability.
     for (int i = 0; i < this->biases.size(); ++i) {
         if (bernoulliDistribution(this->engine)) {
-            this->biases(i) = this->biases(i) * realDistribution(this->engine);
+            this->biases(i) = this->biases(i) + normalDistribution(this->engine);
         }
     }
 }
