@@ -75,7 +75,7 @@ class Layer {
     void compute(const Eigen::VectorXd &input);
     void backpropagate(const Eigen::VectorXd &prevError, const Eigen::MatrixXd &prevWeights);
     void update(double learningRate);
-    void mutate(double probability);
+    void mutate(double probability, double stdv = 0.05);
 
     int nodes;
     PActivationFunction activationFunction;
@@ -106,7 +106,7 @@ class MLPNetwork {
 
     void print() const;
     void randomizeWeights();
-    void mutate(double probability);
+    void mutate(double probability, double stdv = 0.05);
 
     std::string toJSON() const;
     static MLPNetwork fromJSON(std::string json);

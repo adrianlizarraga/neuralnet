@@ -121,9 +121,9 @@ void Layer::update(double learningRate) {
     this->biases += this->deltas * learningRate;
 }
 
-void Layer::mutate(double probability) {
+void Layer::mutate(double probability, double stdv) {
     std::bernoulli_distribution bernoulliDistribution(probability);
-    std::normal_distribution<double> normalDistribution(0.0, 0.1);
+    std::normal_distribution<double> normalDistribution(0.0, stdv);
 
     // Randmoize each weight with the given probability.
     for (int r = 0; r < this->weights.rows(); ++r) {
@@ -230,9 +230,9 @@ void MLPNetwork::randomizeWeights() {
     }
 }
 
-void MLPNetwork::mutate(double probability) {
+void MLPNetwork::mutate(double probability, double stdv) {
     for (auto &layer : layers) {
-        layer.mutate(probability);
+        layer.mutate(probability, stdv);
     }
 }
 
